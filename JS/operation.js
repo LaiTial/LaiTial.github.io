@@ -1,10 +1,11 @@
-
 const buttons = document.querySelectorAll("button");
 const input = document.querySelector("#resultD");
 
 let result = "";
 let nowNum = ""
 let operCheck = false;
+let numberCheck = true;
+let equlasCheck = true;
 
 var numbers = []
 var opers = []
@@ -47,11 +48,17 @@ function displayNumber(number) {
     }
   }
 
+  if(number=="0" && nowNum=="")
+  {
+    return;
+  }
+
   operCheck = false;
 
   nowNum += number;
   result += number;
   input.value = result;
+
 }
 
 function operator(oper) {
@@ -66,6 +73,7 @@ function operator(oper) {
   operCheck = true;
 
   result += oper;
+
   input.value=result;
 }
 
@@ -80,22 +88,70 @@ function clear() {
   numbers=[];
 }
 
-function getCalc() {
-  if (opers.includes('*')) {
-    alert("* is ok");
+function inCalc(index, calcResult) {
+  numbers.splice(index, 2);
+  opers.splice(index, 1);
+  numbers.splice(index, 0, calcResult);
+}
+
+function multipleDivide() {
+  var calcResult = 0;
+  var multi = opers.length;
+  var div = opers.length;
+
+  //'/'이 있는 index number
+  if (opers.includes('/')) {div = opers.indexOf('/');}
+  //'x'이 있는 index number
+  if (opers.includes('x')) {multi = opers.indexOf('x');}
+
+  //'x'이 먼저 위치할 경우 calc
+  if(multi < div)
+  {
+    calcResult = numbers[multi]*numbers[multi+1];
+    inCalc(multi, calcResult);
   }
-  if (opers.includes('/')) {
-    alert("/ is ok");
+
+  //'/'이 먼저 위치할 경우 calc
+  else {
+    calcResult = numbers[div]/numbers[div+1];
+    inCalc(div, calcResult);
   }
 }
 
-function calc() {
+function addSub() {
+  var calcResult = 0;
 
+  if (opers[0]=='+') {calcResult = numbers[0]+numbers[1];}
+  else {calcResult = numbers[0]-numbers[1];}
+
+  inCalc(0, calcResult);
+}
+
+function getCalc() {
+  var calcResult = 0;
+  var calcNumber = opers.length;
+  var nowCalcNum = 0;
+
+  while (calcNumber > 0) {
+
+    //나눗셈이나 곱셈이 있는 경우 그 calc method 호출
+    if (opers.includes('x') || opers.includes('/')) {multipleDivide();}
+
+    //덧셈, 뺄셈 calc method 호출
+    else{addSub();}
+
+    calcNumber -= 1;
+  }
+  calcResult = numbers.pop();
+  return calcResult;
+}
+
+function calc() {
+  var calcR;
   // 계산할 것이 있는지 확인
   if (input.value === "0") {
     clear();
   }
-
   // 마지막이 연산자로 끝나는지 check
   else if (operCheck) {
     clear();
@@ -108,8 +164,10 @@ function calc() {
     {
       numbers.push(Number(nowNum));
     }
-    getCalc();
+    //계산 method 호출
+    calcR = getCalc();
     clear();
+    input.value=String(calcR);
   }
 }
 
