@@ -4,9 +4,6 @@ const input = document.querySelector("#resultD");
 let result = "";
 let nowNum = ""
 let operCheck = false;
-let numberCheck = true;
-let equlasCheck = true;
-
 var numbers = []
 var opers = []
 
@@ -48,12 +45,13 @@ function displayNumber(number) {
     }
   }
 
-  if(number=="0" && nowNum=="")
-  {
-    return;
-  }
-
   operCheck = false;
+
+  if(nowNum=="0")
+  {
+    if(number=="0") return; // ex) 000 같이 0이 계속 들어오는 것을 막는다
+    else {result = result.substring(0, result.length-1);} // ex) 03->3으로.
+  }
 
   nowNum += number;
   result += number;
